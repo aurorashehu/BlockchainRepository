@@ -18,28 +18,23 @@ node_identifier = str(uuid4()).replace('-', '')
 # Instantiate the Blockchain
 blockchain = Blockchain()
 nodes = Nodes()
+
 @app.route('/')
 def dashboard():
     return render_template("dashboard.html")
 
-
-
-
-# @app.route('/mine', methods=['GET'])
-@app.route('/mine', methods=['POST'])
+@app.route('/mine', methods=['GET'])
 def mine():
     # We run the proof of work algorithm to get the next proof...
     last_block = blockchain.last_block
     proof = blockchain.proof_of_work(last_block)
-    amount = request.form['amount']
-    recipient = request.form['recipient']
 
     # We must receive a reward for finding the proof.
     # The sender is "0" to signify that this node has mined a new coin.
     blockchain.new_transaction(
         sender="0",
-        recipient=recipient,
-        amount=amount,
+        recipient=node_identifier,
+        amount=1,
     )
 
     # Forge the new Block by adding it to the chain

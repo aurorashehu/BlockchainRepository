@@ -49,7 +49,6 @@ class Blockchain(ProofOfWork):
         # Create the genesis block
         self.new_block(previous_hash='1', proof=100)
 
-
     def proof_of_work(self, last_block):
         """
         Simple Proof of Work Algorithm:
@@ -68,9 +67,6 @@ class Blockchain(ProofOfWork):
             self.add_proof(1)
 
         return self.get_proof()    
-     
-        
-
 
     def valid_chain(self, chain):
         """
@@ -102,7 +98,6 @@ class Blockchain(ProofOfWork):
 
 
         return True
-
 
     def new_block(self, proof, previous_hash):
         """
