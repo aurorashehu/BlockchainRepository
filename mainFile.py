@@ -17,7 +17,7 @@ node_identifier = str(uuid4()).replace('-', '')
 
 # Instantiate the Blockchain
 blockchain = Blockchain()
-
+nodes = Nodes()
 @app.route('/')
 def dashboard():
     return render_template("dashboard.html")
@@ -107,7 +107,7 @@ def register_nodes():
         return "Error: Please supply a valid list of nodes", 400
 
     for node in nodes:
-        blockchain.register_node(node)
+        nodes.register_node(node)
 
     response = {
         'message': 'New nodes have been added',
@@ -118,7 +118,7 @@ def register_nodes():
 
 @app.route('/nodes/resolve', methods=['GET'])
 def consensus():
-    replaced = blockchain.resolve_conflicts()
+    replaced = nodes.resolve_conflicts()
 
     if replaced:
         response = {
