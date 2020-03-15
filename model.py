@@ -12,12 +12,13 @@ class ProofOfWork(ABC):
     def __init__(self):
         self.__proof
 
-    def add_proof(self,value):
+    def add_proof(self, value):
         self.__proof += value
-        return  self.__proof
-    def set_proof(self,value):
+        return self.__proof
+
+    def set_proof(self, value):
         self.__proof = value
-        return  self.__proof
+        return self.__proof
 
     def get_proof(self):
         return self.__proof
@@ -38,6 +39,7 @@ class ProofOfWork(ABC):
         guess = f'{last_proof}{proof}{last_hash}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:4] == "0000"
+
 
 class Blockchain(ProofOfWork):
     def __init__(self):
@@ -67,35 +69,12 @@ class Blockchain(ProofOfWork):
 
         return self.get_proof()
 
-    def validate(self, value):
-        last_block = value[0]
-        current_index = 1
-
-        while current_index < len(value):
-            block = value[current_index]
-            print(f'{last_block}')
-            print(f'{block}')
-            print("\n-----------\n")
-            # Check that the hash of the block is correct
-            last_block_hash = self.hash(last_block)
-            if block['previous_hash'] != last_block_hash:
-                return False
-
-            # Check that the Proof of Work is correct
-            if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash):
-                return False
-
-            last_block = block
-            print(self.__currentIndex)
-            current_index += 1
-
-        return True
-    """def valid_chain(self, chain):
-        """"""
+    def valid_chain(self, chain):
+        """"
         Determine if a given blockchain is valid
         :param chain: A blockchain
         :return: True if valid, False if not
-        """"""
+        """
 
         last_block = chain[0]
         current_index = 1
@@ -116,10 +95,9 @@ class Blockchain(ProofOfWork):
 
             last_block = block
             print(self.__currentIndex)
-            current_index +=1
+            current_index += 1
 
-
-        return True"""
+        return True
 
     def new_block(self, proof, previous_hash):
         """
@@ -154,8 +132,8 @@ class Blockchain(ProofOfWork):
         try:
             self.current_transactions.append({
                 'sender': sender,
-                'recipient':recipient,
-                'amount':float(amount) ,
+                'recipient': recipient,
+                'amount': float(amount),
             })
             return self.last_block['index'] + 1
         except Exception as e:
@@ -177,24 +155,17 @@ class Blockchain(ProofOfWork):
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
 
-class Nodes:
-    def __init__(self):
-        self.nodes = set()
 
-    def validate(self, value):
-        parsed_url = urlparse(value)
-        if parsed_url.netloc:
-            self.nodes.add(parsed_url.netloc)
-        elif parsed_url.path:
-            # Accepts an URL without scheme like '192.168.0.5:5000'.
-            self.nodes.add(parsed_url.path)
-        else:
-            raise ValueError('Invalid URL')
-    """def register_node(self, address):
-        """"""
+class Nodes(object):
+    def __init__(self, blockchain):
+        self.nodes = set()
+        self.blockchain = blockchain
+
+    def register_node(self, address):
+        """
         Add a new node to the list of nodes
         :param address: Address of node. Eg. 'http://192.168.0.5:5000'
-        """"""
+        """
 
         parsed_url = urlparse(address)
         if parsed_url.netloc:
@@ -204,7 +175,7 @@ class Nodes:
             self.nodes.add(parsed_url.path)
         else:
             raise ValueError('Invalid URL')
-"""
+
     def resolve_conflicts(self):
         """
         This is our consensus algorithm, it resolves conflicts
@@ -216,7 +187,7 @@ class Nodes:
         new_chain = None
 
         # We're only looking for chains longer than ours
-        max_length = len(self.chain)
+        max_length = len(self.blockchain.chain)
 
         # Grab and verify the chains from all the nodes in our network
         for node in neighbours:
@@ -227,13 +198,13 @@ class Nodes:
                 chain = response.json()['chain']
 
                 # Check if the length is longer and the chain is valid
-                if length > max_length and self.valid_chain(chain):
+                if length > max_length and self.blockchain.valid_chain(chain):
                     max_length = length
                     new_chain = chain
 
         # Replace our chain if we discovered a new, valid chain longer than ours
         if new_chain:
-            self.chain = new_chain
+            self.blockchain.chain = new_chain
             return True
 
         return False
