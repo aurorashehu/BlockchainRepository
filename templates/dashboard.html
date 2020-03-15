@@ -3,16 +3,169 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Title</title>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <title>Blockchain</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
     integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="card text-center">
+      <div class="card-header">
+
+      </div>
+      <div class="row">
+        <div class="card-body alert alert-success">
+          <h1 class="card-title">Total number of blocks </h1>
+          <p class="card-text">You have <span id="nrBlocks"></span> blocks</p>
+        </div>
+      </div>
+
+    </div>
+    <div id="accordion">
+      <div class="card">
+        <div class="card-header" id="headingOne">
+          <h5 class="mb-0">
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              Mine
+            </button>
+          </h5>
+        </div>
+    
+        <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+          <div class="card-body  text-info">
+            <div class="row">
+              <div class="col-md-12">
+                  <div class="card-body  text-success" >                    
+                    <a class="btn btn-outline-success" id="mine">
+                     <span>Mine</span> 
+                    </a>
+                    <hr>
+                    <div id="showresults"></div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" id="headingTwo">
+          <h5 class="mb-0">
+            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+              Transaction
+            </button>
+          </h5>
+        </div>
+        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-12">
+                  <div class="card-body text-success">
+                    <form id="my-form">
+                      <div class="form-group">
+                        <label>Amount</label><br>
+                        <input type="text" name="amount"></input>
+                      </div>
+      
+                      <div class="form-group">
+                        <label>Recipient</label><br>
+                        <input type="text" name="recipient"></input>
+                      </div>
+                      <div class="form-group">
+                        <label>Sender</label><br>
+                        <input type="text" name="sender"></input>
+                      </div>
+                      <div class="form-group">
+                        <input class="btn btn-success" type="submit" value="Send transactions"></input>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" id="headingThree">
+          <h5 class="mb-0">
+            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+              Consensus
+            </button>
+          </h5>
+        </div>
+        <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+          <div class="card-body text-success">
+            <a class="btn btn-outline-success" id="consensus">
+              <span>Check</span> 
+             </a>
+             <hr>
+             <div id="showresultsConsensus"></div>
+             <hr>
+             <p>Chain details</p>
+             <table id="table" data-toggle="table">
+                <thead>
+                    <tr>
+                        <th data-field="index">Index</th>
+                        <th data-field="previous_hash">Previous hash</th>
+                        <th data-field="proof">Proof</th>
+                        <th data-field="timestamp">Timestamp</th>
+                        <th data-field="transactions.length">Number of Transactions</th>
+
+                    </tr>
+                </thead>
+            </table>
+           </div>
+          </div>
+      </div>
+      <div class="card">
+        <div class="card-header" id="headingFour">
+          <h5 class="mb-0">
+            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+              Validation
+            </button>
+          </h5>
+        </div>
+        <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-12">
+                  <div class="card-body text-success">
+                    <a class="btn btn-outline-success" id="proofCheck">
+                      <span>Check Proof</span> 
+                     </a>
+                     <hr>
+                     <div id="showresultsProof"></div>
+                     <hr>
+                     <a class="btn btn-outline-success" id="hashCheck">
+                      <span>Check Hash</span> 
+                     </a>
+                     <hr>
+                     <div id="showresultsHash"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
     integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
     crossorigin="anonymous"></script>
-
+  <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js"></script>
   <script type=text/javascript> 
-    $(function() { 
+    window.onload = function chain() {
+      fetch('/chain')
+        .then(res => res.json())
+        .then(res => {
+          document.querySelector("#nrBlocks").innerHTML = res.length;
+      });           
+    }
+    $(function() {
       $('a#mine').on('click', function() { 
         fetch('/mine')
           .then(res=> res.json())
@@ -26,89 +179,94 @@
             });
           });
         });
-        $(function() {
-          $('#my-form').on("submit",function(e) {
-            e.preventDefault(); 
-            var recipient = $(this).find('[name=recipient]').val();
-            const fData = new FormData();
-            fData.append('amount', $(this).find('[name=amount]').val());
-            fData.append('recipient', recipient);
-            fData.append('sender', $(this).find('[name=sender]').val());
-            // console.log(...fData);
-
-            fetch('/transactions/new', {
-                method: "POST",
-                body: fData,
-            })
-            .then(res => res.json())
-            .then((result) => {
-              alert("Transaction fulfilled to recipient: "+recipient)
-              fetch('/chain')
-                .then(res => res.json())
-                .then(res => {
-                    document.querySelector("#nrBlocks").innerHTML = res.length;
-                });
-            })
-            .catch((error) => {
-              console.error('Error:', error);
+    $(function() {
+      $('a#consensus').on('click', function() { 
+        fetch('/nodes/resolve')
+          .then(res=> res.json())
+          .then(res => {
+            document.querySelector("#showresultsConsensus").innerHTML = res.message;
+            $('#table').bootstrapTable({
+                data: res.chain
             });
+            $('#table').bootstrapTable('load', res.chain);
           });
+      });
+    });
+    $(function() {
+      $('a#proofCheck').on('click', function() { 
+        fetch('/check_proof')
+          .then(res=> res.json())
+          .then(res => {
+            document.querySelector("#showresultsProof").innerHTML = res.message;
+          });
+      });
+    });
+    $(function() {
+      $('a#hashCheck').on('click', function() { 
+        fetch('/check_hash')
+          .then(res=> res.json())
+          .then(res => {
+            document.querySelector("#showresultsHash").innerHTML = res.message;
+          });
+      });
+    });
+    $(function() {
+      $('#my-form').on("submit",function(e) {
+        e.preventDefault(); 
+        var recipient = $(this).find('[name=recipient]').val();
+        const fData = new FormData();
+        fData.append('amount', $(this).find('[name=amount]').val());
+        fData.append('recipient', recipient);
+        fData.append('sender', $(this).find('[name=sender]').val());
+        // console.log(...fData);
+
+        fetch('/transactions/new', {
+            method: "POST",
+            body: fData,
+        })
+        .then(res => res.json())
+        .then((result) => {
+          
+          fetch('/chain')
+            .then(res => res.json())
+            .then(res => {
+                document.querySelector("#nrBlocks").innerHTML = res.length;
+            });
+          alert(result.message)
+        })
+        .catch((error) => {
+          console.error('Error:', error);
         });
-    </script>
-</head>
-
-<body>
-  <div class="container">
-    <div class="card text-center">
-      <div class="card-header">
-
-      </div>
-      <div class="row">
-        <div class="card-body alert alert-success">
-          <h5 class="card-title">Total </h5>
-          <p class="card-text">You have <span id="nrBlocks"></span> blocks</p>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-6">
-          <div class="card alert alert-warning ">
-            <div class="card-body">
-              <h5 class="card-title">MINE</h5>
-              <div id="showresults">Start</div>
-              <a class="btn btn-primary" id="mine">
-                <button class='btn btn-default'>Test</button>
-              </a>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6">
-          <div class="card">
-            <div class="card-body">
-              <form id="my-form">
-                <div class="form-group">
-                  <label>Amount</label><br>
-                  <input type="text" name="amount"></input>
-                </div>
-
-                <div class="form-group">
-                  <label>Recipient</label><br>
-                  <input type="text" name="recipient"></input>
-                </div>
-                <div class="form-group">
-                  <label>Sender</label><br>
-                  <input type="text" name="sender"></input>
-                </div>
-                <div class="form-group">
-                  <input type="submit" value="Send transactions"></input>
-                </div>
-              </form>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+      });
+    });
+  </script>
 </body>
 
 </html>
+<style>
+  #mine, #consensus{
+    color: #28a745;
+    padding: 7px 36px;
+    font-size: 18px;
+    font-weight: 500;
+  }
+  #mine:hover,#consensus:hover,#proofCheck:hover,#hashCheck:hover{
+    color:white
+  }
+
+  .card-header button{
+    color:#28a745;
+    font-size: 22px;
+  }
+  .card-header button:hover{
+    text-decoration: none;
+    color:#155724;
+  }
+  .card-body{
+    text-align: center;
+  }
+  #showresultsConsensus{
+    font-size: 22px;
+    font-weight: 500;
+  }
+</style>

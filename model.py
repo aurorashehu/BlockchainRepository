@@ -7,7 +7,6 @@ import requests
 from flask import Flask, jsonify, request, render_template, redirect
 from abc import ABC, abstractmethod
 
-
 class ProofOfWork(ABC):
     def __init__(self):
         self.__proof
@@ -46,7 +45,7 @@ class Blockchain(ProofOfWork):
         self.chain = []
         self.current_transactions = []
         self.__currentIndex = 1
-
+        self.nodes = set()
         # Create the genesis block
         self.new_block(previous_hash='1', proof=100)
 
@@ -154,13 +153,7 @@ class Blockchain(ProofOfWork):
         # We must make sure that the Dictionary is Ordered, or we'll have inconsistent hashes
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
-
-
-class Nodes(object):
-    def __init__(self, blockchain):
-        self.nodes = set()
-        self.blockchain = blockchain
-
+    
     def register_node(self, address):
         """
         Add a new node to the list of nodes
@@ -171,25 +164,19 @@ class Nodes(object):
         if parsed_url.netloc:
             self.nodes.add(parsed_url.netloc)
         elif parsed_url.path:
-            # Accepts an URL without scheme like '192.168.0.5:5000'.
+
             self.nodes.add(parsed_url.path)
         else:
             raise ValueError('Invalid URL')
 
     def resolve_conflicts(self):
-        """
-        This is our consensus algorithm, it resolves conflicts
-        by replacing our chain with the longest one in the network.
-        :return: True if our chain was replaced, False if not
-        """
+
 
         neighbours = self.nodes
         new_chain = None
 
-        # We're only looking for chains longer than ours
-        max_length = len(self.blockchain.chain)
+        max_length = len(self.chain)
 
-        # Grab and verify the chains from all the nodes in our network
         for node in neighbours:
             response = requests.get(f'http://{node}/chain')
 
@@ -197,14 +184,77 @@ class Nodes(object):
                 length = response.json()['length']
                 chain = response.json()['chain']
 
-                # Check if the length is longer and the chain is valid
-                if length > max_length and self.blockchain.valid_chain(chain):
+
+                if length > max_length and self.valid_chain(chain):
                     max_length = length
                     new_chain = chain
 
-        # Replace our chain if we discovered a new, valid chain longer than ours
+
         if new_chain:
-            self.blockchain.chain = new_chain
+            self.chain = new_chain
             return True
 
         return False
+
+
+
+class ProofValid(Blockchain):
+    def validate(self):
+
+        neighbours = self.nodes
+        new_chain = None
+
+        max_length = len(self.chain)
+
+        for node in neighbours:
+            response = requests.get(f'http://{node}/chain')
+
+            if response.status_code == 200:
+                chain = response.json()['chain']
+
+                last_block = chain[0]
+                current_index = 1
+
+                while current_index < len(chain):
+                    if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash):
+                        return False
+
+                    last_block = block
+                    current_index += 1
+
+        return True
+
+class HashValid(Blockchain):
+    def validate(self):
+        """"
+        Determine if a given blockchain is valid
+        :param chain: A blockchain
+        :return: True if valid, False if not
+        """
+        neighbours = self.nodes
+        new_chain = None
+
+        max_length = len(self.chain)
+
+        for node in neighbours:
+            response = requests.get(f'http://{node}/chain')
+
+            if response.status_code == 200:
+                length = response.json()['length']
+                chain = response.json()['chain']
+
+                last_block = chain[0]
+                current_index = 1
+
+                while current_index < len(chain):
+                    block = chain[current_index]
+
+                    last_block_hash = self.hash(last_block)
+                    if block['previous_hash'] != last_block_hash:
+                        return False
+
+
+                    last_block = block
+                    current_index += 1
+
+        return True

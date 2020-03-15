@@ -1,5 +1,6 @@
 from model import *
 
+
 # Instantiate the Node
 app = Flask(__name__)
 
@@ -8,7 +9,9 @@ node_identifier = str(uuid4()).replace('-', '')
 
 # Instantiate the Blockchain
 blockchain = Blockchain()
-nodes = Nodes(blockchain)
+proofValid= ProofValid()
+hashValid = HashValid()
+
 
 
 @app.route('/')
@@ -79,7 +82,7 @@ def register_nodes():
         return "Error: Please supply a valid list of nodes", 400
 
     for node in nodes_given:
-        nodes.register_node(node)
+        blockchain.register_node(node)
 
     response = {
         'message': 'New nodes have been added',
@@ -90,7 +93,7 @@ def register_nodes():
 
 @app.route('/nodes/resolve', methods=['GET'])
 def consensus():
-    replaced = nodes.resolve_conflicts()
+    replaced = blockchain.resolve_conflicts()
 
     if replaced:
         response = {
@@ -105,6 +108,31 @@ def consensus():
 
     return jsonify(response), 200
 
+@app.route('/check_proof', methods=['GET'])
+def valid_proofOfWork():
+    if proofValid.validate():
+        response = {
+            'message': 'Valid proof of work'
+        }
+    else:
+        response = {
+            'message': 'Invalid proof of work'
+        }
+
+    return jsonify(response), 200
+
+@app.route('/check_hash', methods=['GET'])
+def valid_hash():
+    if hashValid.validate():
+        response = {
+            'message': 'Valid hash'
+        }
+    else:
+        response = {
+            'message': 'Invalid hash'
+        }
+
+    return jsonify(response), 200
 
 if __name__ == '__main__':
     app.run(debug=False)
