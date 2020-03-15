@@ -8,7 +8,7 @@ node_identifier = str(uuid4()).replace('-', '')
 
 # Instantiate the Blockchain
 blockchain = Blockchain()
-nodes = Nodes()
+nodes = Nodes(blockchain)
 
 
 @app.route('/')
@@ -40,7 +40,7 @@ def mine():
         'transactions': block['transactions'],
         'proof': block['proof'],
         'previous_hash': block['previous_hash'],
-    }    
+    }
     return jsonify(response), 200
 
 
@@ -58,7 +58,6 @@ def new_transaction():
         response = {'message': f'Transaction error'}
     else:
         response = {'message': f'Transaction will be added to Block {index}'}
-
     return jsonify(response), 201
 
 
@@ -80,7 +79,7 @@ def register_nodes():
         return "Error: Please supply a valid list of nodes", 400
 
     for node in nodes_given:
-        nodes.validate(node)
+        nodes.register_node(node)
 
     response = {
         'message': 'New nodes have been added',
