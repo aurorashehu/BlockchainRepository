@@ -7,17 +7,17 @@ import requests
 from flask import Flask, jsonify, request, render_template, redirect
 from abc import ABC, abstractmethod
 
-  
+
 class ProofOfWork(ABC):
     def __init__(self):
         self.__proof
 
     def add_proof(self,value):
-        self.__proof += value 
-        return  self.__proof  
+        self.__proof += value
+        return  self.__proof
     def set_proof(self,value):
-        self.__proof = value 
-        return  self.__proof  
+        self.__proof = value
+        return  self.__proof
 
     def get_proof(self):
         return self.__proof
@@ -42,7 +42,6 @@ class ProofOfWork(ABC):
 class Blockchain(ProofOfWork):
     def __init__(self):
         self.chain = []
-        self.nodes = set()
         self.current_transactions = []
         self.__currentIndex = 1
 
@@ -61,19 +60,42 @@ class Blockchain(ProofOfWork):
 
         last_proof = last_block['proof']
         last_hash = self.hash(last_block)
-        
+
         self.set_proof(0)
         while self.valid_proof(last_proof, self.get_proof(), last_hash) is False:
             self.add_proof(1)
 
-        return self.get_proof()    
+        return self.get_proof()
 
-    def valid_chain(self, chain):
-        """
+    def validate(self, value):
+        last_block = value[0]
+        current_index = 1
+
+        while current_index < len(value):
+            block = value[current_index]
+            print(f'{last_block}')
+            print(f'{block}')
+            print("\n-----------\n")
+            # Check that the hash of the block is correct
+            last_block_hash = self.hash(last_block)
+            if block['previous_hash'] != last_block_hash:
+                return False
+
+            # Check that the Proof of Work is correct
+            if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash):
+                return False
+
+            last_block = block
+            print(self.__currentIndex)
+            current_index += 1
+
+        return True
+    """def valid_chain(self, chain):
+        """"""
         Determine if a given blockchain is valid
         :param chain: A blockchain
         :return: True if valid, False if not
-        """
+        """"""
 
         last_block = chain[0]
         current_index = 1
@@ -97,7 +119,7 @@ class Blockchain(ProofOfWork):
             current_index +=1
 
 
-        return True
+        return True"""
 
     def new_block(self, proof, previous_hash):
         """
@@ -156,11 +178,23 @@ class Blockchain(ProofOfWork):
         return hashlib.sha256(block_string).hexdigest()
 
 class Nodes:
-    def register_node(self, address):
-        """
+    def __init__(self):
+        self.nodes = set()
+
+    def validate(self, value):
+        parsed_url = urlparse(value)
+        if parsed_url.netloc:
+            self.nodes.add(parsed_url.netloc)
+        elif parsed_url.path:
+            # Accepts an URL without scheme like '192.168.0.5:5000'.
+            self.nodes.add(parsed_url.path)
+        else:
+            raise ValueError('Invalid URL')
+    """def register_node(self, address):
+        """"""
         Add a new node to the list of nodes
         :param address: Address of node. Eg. 'http://192.168.0.5:5000'
-        """
+        """"""
 
         parsed_url = urlparse(address)
         if parsed_url.netloc:
@@ -170,7 +204,7 @@ class Nodes:
             self.nodes.add(parsed_url.path)
         else:
             raise ValueError('Invalid URL')
-
+"""
     def resolve_conflicts(self):
         """
         This is our consensus algorithm, it resolves conflicts
