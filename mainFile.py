@@ -1,13 +1,4 @@
-import hashlib
-import json
-from time import time
-from urllib.parse import urlparse
-from uuid import uuid4
-
-import requests
-from flask import Flask, jsonify, request, render_template, redirect
-from model import * 
-
+from model import *
 
 # Instantiate the Node
 app = Flask(__name__)
@@ -19,9 +10,11 @@ node_identifier = str(uuid4()).replace('-', '')
 blockchain = Blockchain()
 nodes = Nodes()
 
+
 @app.route('/')
 def dashboard():
     return render_template("dashboard.html")
+
 
 @app.route('/mine', methods=['GET'])
 def mine():
@@ -47,7 +40,7 @@ def mine():
         'transactions': block['transactions'],
         'proof': block['proof'],
         'previous_hash': block['previous_hash'],
-    }
+    }    
     return jsonify(response), 200
 
 
@@ -58,29 +51,14 @@ def new_transaction():
     amount = request.form['amount']
     sender = request.form['sender']
     recipient = request.form['recipient']
-    
 
-    index = blockchain.new_transaction(recipient, sender,amount)
-    
-    if(index == last_block['index']):
+    index = blockchain.new_transaction(sender, recipient, amount)
+
+    if (index == last_block['index']):
         response = {'message': f'Transaction error'}
     else:
         response = {'message': f'Transaction will be added to Block {index}'}
-        
-    # values = request.get_json()
 
-    # Check that the required fields are in the POST'ed data
-
-    # if not all(k in values for k in required):
-    #     return 'Missing values', 400
-
-    # Create a new Transaction
-    # index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
-
-    
-
-
-    # response = {'message': f'Transaction will be added to Block {index}'}
     return jsonify(response), 201
 
 
@@ -97,16 +75,16 @@ def full_chain():
 def register_nodes():
     values = request.get_json()
 
-    nodes = values.get('nodes')
-    if nodes is None:
+    nodes_given = values.get('nodes')
+    if nodes_given is None:
         return "Error: Please supply a valid list of nodes", 400
 
-    for node in nodes:
-        nodes.register_node(node)
+    for node in nodes_given:
+        nodes.validate(node)
 
     response = {
         'message': 'New nodes have been added',
-        'total_nodes': list(blockchain.nodes),
+        'total_nodes': list(nodes.nodes),
     }
     return jsonify(response), 201
 
@@ -130,5 +108,4 @@ def consensus():
 
 
 if __name__ == '__main__':
-     app.run(debug = True)
-    
+    app.run(debug=False)
