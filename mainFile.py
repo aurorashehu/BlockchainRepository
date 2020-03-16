@@ -7,12 +7,9 @@ app = Flask(__name__)
 # Generate a globally unique address for this node
 node_identifier = str(uuid4()).replace('-', '')
 
-# Instantiate the Blockchain
+
 blockchain = Blockchain()
 proofValid= ProofValid()
-hashValid = HashValid()
-
-
 
 @app.route('/')
 def dashboard():
@@ -123,7 +120,7 @@ def valid_proofOfWork():
 
 @app.route('/check_hash', methods=['GET'])
 def valid_hash():
-    if hashValid.validate():
+    if blockchain.validate():
         response = {
             'message': 'Valid hash'
         }

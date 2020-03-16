@@ -196,35 +196,6 @@ class Blockchain(ProofOfWork):
 
         return False
 
-
-
-class ProofValid(Blockchain):
-    def validate(self):
-
-        neighbours = self.nodes
-        new_chain = None
-
-        max_length = len(self.chain)
-
-        for node in neighbours:
-            response = requests.get(f'http://{node}/chain')
-
-            if response.status_code == 200:
-                chain = response.json()['chain']
-
-                last_block = chain[0]
-                current_index = 1
-
-                while current_index < len(chain):
-                    if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash):
-                        return False
-
-                    last_block = block
-                    current_index += 1
-
-        return True
-
-class HashValid(Blockchain):
     def validate(self):
         """"
         Determine if a given blockchain is valid
@@ -258,3 +229,31 @@ class HashValid(Blockchain):
                     current_index += 1
 
         return True
+
+class ProofValid(Blockchain):
+    def validate(self):
+
+        neighbours = self.nodes
+        new_chain = None
+
+        max_length = len(self.chain)
+
+        for node in neighbours:
+            response = requests.get(f'http://{node}/chain')
+
+            if response.status_code == 200:
+                chain = response.json()['chain']
+
+                last_block = chain[0]
+                current_index = 1
+
+                while current_index < len(chain):
+                    if not self.valid_proof(last_block['proof'], block['proof'], last_block_hash):
+                        return False
+
+                    last_block = block
+                    current_index += 1
+
+        return True
+
+
