@@ -1,15 +1,14 @@
 from model import *
 
-
 # Instantiate the Node
 app = Flask(__name__)
 
 # Generate a globally unique address for this node
 node_identifier = str(uuid4()).replace('-', '')
 
-
 blockchain = Blockchain()
-proofValid= ProofValid()
+proofValid = ProofValid()
+
 
 @app.route('/')
 def dashboard():
@@ -61,6 +60,23 @@ def new_transaction():
     return jsonify(response), 201
 
 
+@app.route('/user/new', methods=['POST'])
+def new_user():
+    last_block = blockchain.last_block
+    proof = blockchain.proof_of_work(last_block)
+    name = request.form['name']
+    surname = request.form['surname']
+    email = request.form['email']
+
+    index = blockchain.new_user(name, surname, email)
+
+    if (index == last_block['index']):
+        response = {'message': f'Transaction error'}
+    else:
+        response = {'message': f'Transaction will be added to Block {index}'}
+    return jsonify(response), 201
+
+
 @app.route('/chain', methods=['GET'])
 def full_chain():
     response = {
@@ -83,7 +99,7 @@ def register_nodes():
 
     response = {
         'message': 'New nodes have been added',
-        'total_nodes': list(nodes.nodes),
+        'total_nodes': list(blockchain.nodes),
     }
     return jsonify(response), 201
 
@@ -105,6 +121,7 @@ def consensus():
 
     return jsonify(response), 200
 
+
 @app.route('/check_proof', methods=['GET'])
 def valid_proofOfWork():
     if proofValid.validate():
@@ -118,6 +135,7 @@ def valid_proofOfWork():
 
     return jsonify(response), 200
 
+
 @app.route('/check_hash', methods=['GET'])
 def valid_hash():
     if blockchain.validate():
@@ -130,6 +148,7 @@ def valid_hash():
         }
 
     return jsonify(response), 200
+
 
 if __name__ == '__main__':
     app.run(debug=False)
