@@ -7,6 +7,7 @@ import requests
 from flask import Flask, jsonify, request, render_template, redirect
 from abc import ABC, abstractmethod
 
+
 class ProofOfWork(ABC):
     def __init__(self):
         self.__proof
@@ -44,6 +45,7 @@ class Blockchain(ProofOfWork):
     def __init__(self):
         self.chain = []
         self.current_transactions = []
+        self.current_user = []
         self.__currentIndex = 1
         self.nodes = set()
         # Create the genesis block
@@ -110,24 +112,19 @@ class Blockchain(ProofOfWork):
             'index': len(self.chain) + 1,
             'timestamp': time(),
             'transactions': self.current_transactions,
+            'user':self.current_user,
             'proof': proof,
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
         }
 
         # Reset the current list of transactions
         self.current_transactions = []
+        self.current_user = []
 
         self.chain.append(block)
         return block
 
     def new_transaction(self, sender, recipient, amount):
-        """
-        Creates a new transaction to go into the next mined Block
-        :param sender: Address of the Sender
-        :param recipient: Address of the Recipient
-        :param amount: Amount
-        :return: The index of the Block that will hold this transaction
-        """
         try:
             self.current_transactions.append({
                 'sender': sender,
@@ -139,9 +136,27 @@ class Blockchain(ProofOfWork):
             print(e)
             return self.last_block['index']
 
+    def new_user(self, name, surname, email):
+        new_id = self.last_user_id + 1
+        try:
+            self.current_user.append({
+                'id': new_id,
+                'name': name,
+                'surname': surname,
+                'email': email,
+            })
+            return self.last_block['index'] + 1
+        except Exception as e:
+            print(e)
+            return self.last_block['index']
+
     @property
     def last_block(self):
         return self.chain[-1]
+
+    @property
+    def last_user_id(self):
+        return len(self.current_user)
 
     @staticmethod
     def hash(block):
@@ -153,7 +168,7 @@ class Blockchain(ProofOfWork):
         # We must make sure that the Dictionary is Ordered, or we'll have inconsistent hashes
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
-    
+
     def register_node(self, address):
         """
         Add a new node to the list of nodes
@@ -171,7 +186,6 @@ class Blockchain(ProofOfWork):
 
     def resolve_conflicts(self):
 
-
         neighbours = self.nodes
         new_chain = None
 
@@ -184,11 +198,9 @@ class Blockchain(ProofOfWork):
                 length = response.json()['length']
                 chain = response.json()['chain']
 
-
                 if length > max_length and self.valid_chain(chain):
                     max_length = length
                     new_chain = chain
-
 
         if new_chain:
             self.chain = new_chain
@@ -198,7 +210,7 @@ class Blockchain(ProofOfWork):
 
     def validate(self):
         """"
-        Determine if a given blockchain is valid
+            Determine if a given blockchain is valid
         :param chain: A blockchain
         :return: True if valid, False if not
         """
@@ -224,11 +236,11 @@ class Blockchain(ProofOfWork):
                     if block['previous_hash'] != last_block_hash:
                         return False
 
-
                     last_block = block
                     current_index += 1
 
         return True
+
 
 class ProofValid(Blockchain):
     def validate(self):
@@ -255,5 +267,3 @@ class ProofValid(Blockchain):
                     current_index += 1
 
         return True
-
-
